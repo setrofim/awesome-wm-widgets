@@ -11,6 +11,7 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local watch = require("awful.widget.watch")
+local beautiful = require("beautiful")
 
 local function ellipsize(text, length)
     -- utf8 only available in Lua 5.3+
@@ -30,6 +31,7 @@ local function worker(user_args)
 
     local play_icon = args.play_icon or '/usr/share/icons/Arc/actions/24/player_play.png'
     local pause_icon = args.pause_icon or '/usr/share/icons/Arc/actions/24/player_pause.png'
+    local artist_color = args.artist_color or beautiful.fg_focus
     local font = args.font or 'Play 9'
     local dim_when_paused = args.dim_when_paused == nil and false or args.dim_when_paused
     local dim_opacity = args.dim_opacity or 0.2
@@ -50,11 +52,6 @@ local function worker(user_args)
 
     spotify_widget = wibox.widget {
         {
-            id = 'artistw',
-            font = font,
-            widget = wibox.widget.textbox,
-        },
-        {
             layout = wibox.layout.stack,
             {
                 id = "icon",
@@ -66,6 +63,11 @@ local function worker(user_args)
                 text = ' ',
                 forced_height = 1
             }
+        },
+        {
+            id = 'artistw',
+            font = font,
+            widget = wibox.widget.textbox,
         },
         {
             layout = wibox.container.scroll.horizontal,
@@ -94,7 +96,7 @@ local function worker(user_args)
         set_text = function(self, artist, song)
             local artist_to_display = ellipsize(artist, max_length)
             if self:get_children_by_id('artistw')[1]:get_markup() ~= artist_to_display then
-                self:get_children_by_id('artistw')[1]:set_markup(artist_to_display)
+                self:get_children_by_id('artistw')[1]:set_markup("<span foreground=\"" .. artist_color .. "\">" .. artist_to_display .. "</span>  |  ")
             end
             local title_to_display = ellipsize(song, max_length)
             if self:get_children_by_id('titlew')[1]:get_markup() ~= title_to_display then
